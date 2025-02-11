@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSM-7 SMS Cleaner</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        textarea { width: 90%; height: 150px; padding: 10px; font-size: 16px; }
+        button { margin-top: 10px; padding: 10px 20px; font-size: 16px; }
+        .output { margin-top: 20px; font-weight: bold; white-space: pre-line; }
+    </style>
+</head>
+<body>
+    <h2>GSM-7 SMS Cleaner</h2>
+    <p>Paste your text below to clean non-GSM-7 characters:</p>
+    <textarea id="inputText" placeholder="Paste your SMS here..."></textarea>
+    <br>
+    <button onclick="cleanText()">Convert to GSM-7</button>
+    <button onclick="copyText()">Copy Cleaned Text</button>
+    <p class="output" id="outputText"></p>
+    <p class="output" id="segmentInfo"></p>
+    
+    <script>
+        const gsm7Chars = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1BÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà{}";
+        const replacements = {
+            "“": '"', "”": '"', "‘": "'", "’": "'",
+            "–": "-", "—": "-", "…": "...",
+            "€": "EUR", "•": "*", "°": "deg",
+            "→": "->", "←": "<-", 
+            "↔": "<->", "©": "(c)", "®": "(R)", "™": "(TM)"
+        };
+        
+        function calculateSegments(text, encoding) {
+            let charLimit = encoding === "GSM-7" ? 160 : 70;
+            return Math.ceil(text.length / charLimit);
+        }
+        
+        function cleanText() {
+            let text = document.getElementById("inputText").value;
+            let originalText = text;
+            
+            for (let [key, value] of Object.entries(replacements)) {
+                text = text.replace(new RegExp(key, 'g'), value);
+            }
+            
+            let cleanedText = "";
+            for (let char of text) {
+                cleanedText += gsm7Chars.includes(char) ? char : "?";
+            }
+            
+            let originalEncoding = /[^@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1BÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà{}]/.test(originalText) ? "UCS-2" : "GSM-7";
+            let cleanedEncoding = /[^@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1BÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà{}]/.test(cleanedText) ? "UCS-2" : "GSM-7";
+            
+            let originalSegments = calculateSegments(originalText, originalEncoding);
+            let cleanedSegments = calculateSegments(cleanedText, cleanedEncoding);
+            
+            document.getElementById("outputText").textContent = "Cleaned Text:
+
+" + cleanedText;
+            document.getElementById("segmentInfo").textContent = `Original Encoding: ${originalEncoding}, Segments: ${originalSegments} | Cleaned Encoding: ${cleanedEncoding}, Segments: ${cleanedSegments}`;
+        }
+        
+        function copyText() {
+            navigator.clipboard.writeText(document.getElementById("outputText").textContent.replace("Cleaned Text:\n", ""));
+            alert("Cleaned text copied!");
+        }
+    </script>
+</body>
+</html>
