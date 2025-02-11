@@ -55,14 +55,12 @@
             let originalSegments = calculateSegments(originalText, originalEncoding);
             let cleanedSegments = calculateSegments(cleanedText, cleanedEncoding);
             
-            document.getElementById("outputText").textContent = "Cleaned Text:
-
-" + cleanedText;
+            document.getElementById("outputText").textContent = "Cleaned Text:\n\n" + cleanedText;
             document.getElementById("segmentInfo").textContent = `Original Encoding: ${originalEncoding}, Segments: ${originalSegments} | Cleaned Encoding: ${cleanedEncoding}, Segments: ${cleanedSegments}`;
         }
         
         function copyText() {
-            navigator.clipboard.writeText(document.getElementById("outputText").textContent.replace("Cleaned Text:\n", ""));
+            navigator.clipboard.writeText(document.getElementById("outputText").textContent.replace("Cleaned Text:\n\n", ""));
             alert("Cleaned text copied!");
         }
     </script>
